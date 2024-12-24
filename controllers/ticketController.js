@@ -64,7 +64,7 @@ export const purchaseTicket = asyncHandler(async (req, res) => {
 export const getTicketsByUser = asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
-    const tickets = await Ticket.find({ user: userId }).populate('raffle');
+    const tickets = await Ticket.find({ user: userId }).populate('raffle').populate('user');
     if (!tickets || tickets.length === 0) {
         throw new CustomError('No tickets found for this user', 404);
     }
@@ -72,5 +72,47 @@ export const getTicketsByUser = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         tickets
+    });
+});
+
+export const getAllTickets = asyncHandler(async (req, res) => {
+    const tickets = await Ticket.find().populate('raffle').populate('user');
+    if (!tickets || tickets.length === 0) {
+        throw new CustomError('No tickets found', 404);
+    }
+
+    res.status(200).json({
+        success: true,
+        tickets
+    });
+});
+
+export const getTicketById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const ticket = await Ticket.findById(id).populate('raffle').populate('user');
+    if (!ticket) {
+        throw new CustomError('Ticket not found', 404);
+    }
+
+    res.status(200).json({
+        success: true,
+        ticket
+    });
+});
+
+export const deleteTicket = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const ticket = await Ticket.findById(id);
+    if (!ticket) {
+        throw new CustomError('Ticket not found', 404);
+    }
+
+    await ticket.deleteOne();
+
+    res.status(200).json({
+        success: true,
+        message: 'Ticket deleted successfully'
     });
 });
