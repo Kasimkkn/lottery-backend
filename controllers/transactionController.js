@@ -36,3 +36,45 @@ export const createTransaction = asyncHandler(async (req, res) => {
         newBalance: user.balance
     });
 });
+
+export const getAllTransactions = asyncHandler(async (req, res) => {
+    const transactions = await Transaction.find();
+    res.status(200).json({
+        success: true,
+        transactions
+    });
+});
+
+export const getSingleTransaction = asyncHandler(async (req, res) => {
+    const transaction = await Transaction.findById(req.params.id);
+    if (!transaction) {
+        throw new CustomError('Transaction not found', 404);
+    }
+
+    res.status(200).json({
+        success: true,
+        transaction
+    });
+});
+
+export const getUserTransactions = asyncHandler(async (req, res) => {
+    const transactions = await Transaction.find({ user: req.user._id });
+    res.status(200).json({
+        success: true,
+        transactions
+    });
+});
+
+export const deleteTransaction = asyncHandler(async (req, res) => {
+    const transaction = await Transaction.findById(req.params.id);
+    if (!transaction) {
+        throw new CustomError('Transaction not found', 404);
+    }
+
+    await transaction.deleteOne();
+
+    res.status(200).json({
+        success: true,
+        message: 'Transaction deleted successfully'
+    });
+});
